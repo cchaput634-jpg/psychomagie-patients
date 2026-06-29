@@ -1,0 +1,13 @@
+name = "psychomagie-patients"
+main = "./src/worker/index.ts"
+compatibility_date = "2024-09-23"
+
+# Le frontend React compilé est servi via ce binding.
+[assets]
+binding = "ASSETS"
+directory = "./dist/client"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "psychomagie-patients-db"
+database_id = "58869054-333c-4f5f-a6f6-ede588bae2ca"
