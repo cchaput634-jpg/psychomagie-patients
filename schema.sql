@@ -22,3 +22,15 @@ CREATE TABLE IF NOT EXISTS patients (
 );
 
 CREATE INDEX IF NOT EXISTS idx_patients_profile ON patients(profile_id);
+
+-- Comptes rendus de réunion (indépendants des profils)
+CREATE TABLE IF NOT EXISTS meetings (
+  id           TEXT PRIMARY KEY,
+  title        TEXT NOT NULL,
+  meeting_date TEXT NOT NULL DEFAULT '',   -- format JJ/MM/AA
+  attendees    TEXT NOT NULL DEFAULT '',   -- personnes présentes
+  theme        TEXT NOT NULL DEFAULT '',   -- thème général
+  infos        TEXT NOT NULL DEFAULT '',   -- infos transmises
+  ideas        TEXT NOT NULL DEFAULT '',   -- idées échangées
+  created_at   TEXT NOT NULL DEFAULT (datetime('now'))
+);

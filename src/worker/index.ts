@@ -157,6 +157,83 @@ export default {
         }
       }
 
+      // ---------- /api/meetings ----------
+      if (path === '/api/meetings') {
+        if (request.method === 'GET') {
+          const { results } = await env.DB.prepare(
+            'SELECT * FROM meetings ORDER BY created_at DESC',
+          ).all()
+          return json(results)
+        }
+        if (request.method === 'POST') {
+          const body = await request.json<{
+            title: string
+            meeting_date?: string
+            attendees?: string
+            theme?: string
+            infos?: string
+            ideas?: string
+          }>()
+          if (!body.title?.trim()) return fail('Titre requis', 400)
+          const id = uid()
+          await env.DB.prepare(
+            `INSERT INTO meetings (id, title, meeting_date, attendees, theme, infos, ideas)
+             VALUES (?, ?, ?, ?, ?, ?, ?)`,
+          )
+            .bind(
+              id,
+              body.title.trim(),
+              body.meeting_date ?? '',
+              body.attendees ?? '',
+              body.theme ?? '',
+              body.infos ?? '',
+              body.ideas ?? '',
+            )
+            .run()
+          const { results } = await env.DB.prepare('SELECT * FROM meetings WHERE id = ?')
+            .bind(id)
+            .all()
+          return json(results[0])
+        }
+      }
+
+      // ---------- /api/meetings/:id ----------
+      const meetingMatch = path.match(/^\/api\/meetings\/([^/]+)$/)
+      if (meetingMatch) {
+        const id = decodeURIComponent(meetingMatch[1])
+        if (request.method === 'PATCH') {
+          const body = await request.json<{
+            title?: string
+            meeting_date?: string
+            attendees?: string
+            theme?: string
+            infos?: string
+            ideas?: string
+          }>()
+          const sets: string[] = []
+          const values: unknown[] = []
+          const fields = ['title', 'meeting_date', 'attendees', 'theme', 'infos', 'ideas'] as const
+          for (const f of fields) {
+            const v = body[f]
+            if (v !== undefined) {
+              if (f === 'title' && !v.trim()) return fail('Titre requis', 400)
+              sets.push(`${f} = ?`)
+              values.push(f === 'title' ? v.trim() : v)
+            }
+          }
+          if (sets.length === 0) return fail('Aucun champ à mettre à jour', 400)
+          values.push(id)
+          await env.DB.prepare(`UPDATE meetings SET ${sets.join(', ')} WHERE id = ?`)
+            .bind(...values)
+            .run()
+          return json({ ok: true })
+        }
+        if (request.method === 'DELETE') {
+          await env.DB.prepare('DELETE FROM meetings WHERE id = ?').bind(id).run()
+          return json({ ok: true })
+        }
+      }
+
       return fail('Route introuvable', 404)
     } catch (e) {
       return fail(String(e))

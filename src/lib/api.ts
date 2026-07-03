@@ -1,4 +1,4 @@
-import type { Patient, PatientInput, ProfileMeta } from './types'
+import type { Meeting, MeetingInput, Patient, PatientInput, ProfileMeta } from './types'
 
 // --- Mapping ligne SQL -> modèle client ---
 interface PatientRow {
@@ -33,6 +33,41 @@ function mapPatient(row: PatientRow): Patient {
 
 function mapProfile(row: ProfileRow): ProfileMeta {
   return { id: row.id, name: row.name, count: row.patient_count ?? 0 }
+}
+
+interface MeetingRow {
+  id: string
+  title: string
+  meeting_date: string
+  attendees: string
+  theme: string
+  infos: string
+  ideas: string
+  created_at: string
+}
+
+function mapMeeting(row: MeetingRow): Meeting {
+  return {
+    id: row.id,
+    title: row.title,
+    meetingDate: row.meeting_date ?? '',
+    attendees: row.attendees ?? '',
+    theme: row.theme ?? '',
+    infos: row.infos ?? '',
+    ideas: row.ideas ?? '',
+    createdAt: row.created_at,
+  }
+}
+
+function meetingBody(data: MeetingInput) {
+  return {
+    title: data.title,
+    meeting_date: data.meetingDate,
+    attendees: data.attendees,
+    theme: data.theme,
+    infos: data.infos,
+    ideas: data.ideas,
+  }
 }
 
 async function req<T>(url: string, init?: RequestInit): Promise<T> {
@@ -113,5 +148,27 @@ export const api = {
 
   async deletePatient(id: string): Promise<void> {
     await req(`/api/patients/${id}`, { method: 'DELETE' })
+  },
+
+  // --- Réunions ---
+  async listMeetings(): Promise<Meeting[]> {
+    const rows = await req<MeetingRow[]>('/api/meetings')
+    return rows.map(mapMeeting)
+  },
+
+  async createMeeting(data: MeetingInput): Promise<Meeting> {
+    const row = await req<MeetingRow>('/api/meetings', {
+      method: 'POST',
+      body: JSON.stringify(meetingBody(data)),
+    })
+    return mapMeeting(row)
+  },
+
+  async updateMeeting(id: string, data: MeetingInput): Promise<void> {
+    await req(`/api/meetings/${id}`, { method: 'PATCH', body: JSON.stringify(meetingBody(data)) })
+  },
+
+  async deleteMeeting(id: string): Promise<void> {
+    await req(`/api/meetings/${id}`, { method: 'DELETE' })
   },
 }

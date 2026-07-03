@@ -1,18 +1,29 @@
 import { useEffect, useRef, useState } from 'react'
-import { Pencil, Plus, Trash2 } from 'lucide-react'
+import { ClipboardList, Pencil, Plus, Trash2 } from 'lucide-react'
 import type { ProfileMeta } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
 interface SidebarProps {
   profiles: ProfileMeta[]
   activeId: string | null
+  homeActive: boolean
+  onGoHome: () => void
   onSelect: (id: string) => void
   onCreate: (name: string) => void
   onRename: (id: string, name: string) => void
   onDelete: (id: string) => void
 }
 
-export function Sidebar({ profiles, activeId, onSelect, onCreate, onRename, onDelete }: SidebarProps) {
+export function Sidebar({
+  profiles,
+  activeId,
+  homeActive,
+  onGoHome,
+  onSelect,
+  onCreate,
+  onRename,
+  onDelete,
+}: SidebarProps) {
   const [creating, setCreating] = useState(false)
   const [draft, setDraft] = useState('')
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -65,7 +76,21 @@ export function Sidebar({ profiles, activeId, onSelect, onCreate, onRename, onDe
         </div>
       </div>
 
-      <div className="px-3 pt-3 pb-1 flex items-center justify-between">
+      {/* Accueil — comptes rendus de réunion (hors profil) */}
+      <div className="px-2 pt-3">
+        <button
+          onClick={onGoHome}
+          className={cn(
+            'w-full flex items-center gap-2 rounded-md px-2.5 py-2 text-sm font-medium transition-colors',
+            homeActive ? 'bg-accent text-accent-foreground' : 'hover:bg-muted text-foreground',
+          )}
+        >
+          <ClipboardList className="w-4 h-4 shrink-0" />
+          <span className="flex-1 text-left">Comptes rendus</span>
+        </button>
+      </div>
+
+      <div className="px-3 pt-4 pb-1 flex items-center justify-between">
         <span className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">
           Profils
         </span>
