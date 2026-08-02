@@ -1,7 +1,28 @@
 import { useEffect, useRef, useState } from 'react'
-import { ClipboardList, Pencil, Plus, Trash2 } from 'lucide-react'
+import {
+  ClipboardList,
+  ExternalLink,
+  FileQuestion,
+  GraduationCap,
+  Pencil,
+  Plus,
+  Trash2,
+} from 'lucide-react'
 import type { ProfileMeta } from '@/lib/types'
 import { cn } from '@/lib/utils'
+
+const EXTERNAL_LINKS = [
+  {
+    label: 'Support Formation',
+    href: 'https://quiz.infinite-lab.com/',
+    icon: GraduationCap,
+  },
+  {
+    label: 'Questionnaire visite Psy',
+    href: 'https://psychomage.pages.dev/',
+    icon: FileQuestion,
+  },
+] as const
 
 interface SidebarProps {
   profiles: ProfileMeta[]
@@ -88,6 +109,24 @@ export function Sidebar({
           <ClipboardList className="w-4 h-4 shrink-0" />
           <span className="flex-1 text-left">Comptes rendus</span>
         </button>
+
+        {/* Liens externes (nouvel onglet) */}
+        {EXTERNAL_LINKS.map(link => {
+          const Icon = link.icon
+          return (
+            <a
+              key={link.href}
+              href={link.href}
+              target="_blank"
+              rel="noreferrer"
+              className="group w-full flex items-center gap-2 rounded-md px-2.5 py-2 text-sm font-medium text-foreground hover:bg-muted transition-colors"
+            >
+              <Icon className="w-4 h-4 shrink-0" />
+              <span className="flex-1 text-left truncate">{link.label}</span>
+              <ExternalLink className="w-3 h-3 shrink-0 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+            </a>
+          )
+        })}
       </div>
 
       <div className="px-3 pt-4 pb-1 flex items-center justify-between">
